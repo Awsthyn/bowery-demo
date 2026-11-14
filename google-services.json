@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "332744897043",
+    "project_id": "bowery-demo",
+    "storage_bucket": "bowery-demo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332744897043:android:0aeccdc0c9c0202ef305e6",
+        "android_client_info": {
+          "package_name": "com.bowery.onboardingdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332744897043-cq8cgjbt0acrdo040doej8a4283sin8u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bowery.onboardingdemo",
+            "certificate_hash": "a14ab8af7d48e8413ab4c64bf198048b10486896"
+          }
+        },
+        {
+          "client_id": "332744897043-agh33k520omee4fes4i6qrk7hs5qo9pe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgNqV6G8iWlSEoWseNL90ARXIHetRI6a4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332744897043-agh33k520omee4fes4i6qrk7hs5qo9pe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
