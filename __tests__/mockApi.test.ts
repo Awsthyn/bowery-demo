@@ -20,7 +20,7 @@ const personal = {
   phone: '+44 20 7946 0958',
   dateOfBirth: '1990-12-10',
   nationality: 'British',
-  documentNumber: 'AB123456',
+  documentNumber: '30123456',
 };
 
 function client(overrides: Partial<DevSettings> = {}) {

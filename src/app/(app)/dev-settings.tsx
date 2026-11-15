@@ -1,12 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQueryClient } from '@tanstack/react-query';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Divider, List, SegmentedButtons, Switch, Text, useTheme } from 'react-native-paper';
 
-import { MOCK_DB_KEY } from '@/api/MockApiClient';
 import type { DevSettings } from '@/domain/types';
+import { resetDemo } from '@/features/dev/resetDemo';
+import { LAST_STEP, stepHref } from '@/features/onboarding/steps';
 import { useDevSettings } from '@/stores/devSettingsStore';
 import { useOutboxStore } from '@/stores/outboxStore';
+import { useUid } from '@/stores/sessionStore';
 
 function Choice<T extends string | number>({
   title,
@@ -41,6 +43,7 @@ export default function DevSettingsScreen() {
   const settings = useDevSettings();
   const items = useOutboxStore((s) => s.items);
   const queryClient = useQueryClient();
+  const uid = useUid();
   const counts = Object.values(items).reduce<Record<string, number>>((acc, i) => {
     acc[i.status] = (acc[i.status] ?? 0) + 1;
     return acc;
@@ -50,6 +53,25 @@ export default function DevSettingsScreen() {
     settings.set({ forcedStatus });
     void queryClient.invalidateQueries({ queryKey: ['application-status'] });
   };
+
+  const confirmResetDemo = () =>
+    Alert.alert(
+      'Reset demo?',
+      'Clears the mock server and your submission so you can submit again. Your form data and photos are kept.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await resetDemo(uid, queryClient);
+            // Drop status + this screen so Back from Review walks the wizard, not the old status screen.
+            router.dismissAll();
+            router.replace(stepHref(LAST_STEP));
+          },
+        },
+      ],
+    );
 
   return (
     <ScrollView style={{ backgroundColor: theme.colors.background }} contentContainerStyle={styles.content}>
@@ -121,17 +143,14 @@ export default function DevSettingsScreen() {
         <Button mode="outlined" onPress={settings.reset}>
           Reset settings
         </Button>
-        <Button
-          mode="outlined"
-          textColor={theme.colors.error}
-          onPress={async () => {
-            await AsyncStorage.removeItem(MOCK_DB_KEY);
-            void queryClient.invalidateQueries();
-          }}
-        >
-          Wipe mock server
+        <Button mode="outlined" icon="restart" textColor={theme.colors.error} onPress={confirmResetDemo}>
+          Reset demo
         </Button>
       </View>
+      <Text variant="bodySmall" style={styles.desc}>
+        Reset demo clears the mock server and your submission, then takes you back to Review with your data kept, so
+        you can submit again under different settings.
+      </Text>
     </ScrollView>
   );
 }

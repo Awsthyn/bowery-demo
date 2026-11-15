@@ -40,9 +40,10 @@ export async function persistImage(
   return { uri: dest.uri, mimeType: 'image/jpeg', name: dest.name, sizeBytes: dest.size ?? 0, source };
 }
 
-export async function persistPdf(uid: string, src: { uri: string; name: string }): Promise<LocalFile> {
+/** `src` must be a File the module can read (e.g. from File.pickFileAsync), not a bare cache URI. */
+export async function persistPdf(uid: string, src: File): Promise<LocalFile> {
   const dest = destFile(uid, 'offerLetter', 'pdf');
-  await new File(src.uri).copy(dest);
+  await src.copy(dest);
   return { uri: dest.uri, mimeType: 'application/pdf', name: src.name, sizeBytes: dest.size ?? 0, source: 'document' };
 }
 

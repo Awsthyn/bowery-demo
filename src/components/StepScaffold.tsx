@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, ProgressBar, Text, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,11 +21,10 @@ type Props = {
   primaryLoading?: boolean;
 };
 
-export function StepScaffold({ step, subtitle, canContinue, children, onPrimary, primaryLabel, primaryLoading }: Props) {
+/** Step-to-step navigation that also records the current step in the draft (for resume after a kill). */
+export function useStepNavigation(step: StepIndex) {
   const uid = useUid();
   const setStep = useDraftStore((s) => s.setStep);
-  const theme = useTheme();
-  const insets = useSafeAreaInsets();
 
   const goNext = () => {
     const next = Math.min(step + 1, LAST_STEP) as StepIndex;
@@ -40,13 +40,30 @@ export function StepScaffold({ step, subtitle, canContinue, children, onPrimary,
     else router.replace(stepHref(prev));
   };
 
+  return { goNext, goBack };
+}
+
+export function StepScaffold({ step, subtitle, canContinue, children, onPrimary, primaryLabel, primaryLoading }: Props) {
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
+  const { goNext, goBack } = useStepNavigation(step);
+
   return (
+    // Expo apps are edge-to-edge on Android, so the window no longer resizes for the keyboard:
+    // without a `behavior` here the lower fields and the footer stay under it. `padding` shrinks the
+    // scroll area on both platforms, and the header offset keeps the math right below the stack header.
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior="padding"
+      keyboardVerticalOffset={headerHeight}
     >
       <ProgressBar progress={(step + 1) / STEPS.length} />
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
         <Text variant="labelLarge" style={{ color: theme.colors.primary }}>
           Step {step + 1} of {STEPS.length}
         </Text>

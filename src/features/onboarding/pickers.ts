@@ -1,4 +1,4 @@
-import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 
 import type { DocKind, LocalFile } from '@/domain/types';
@@ -45,20 +45,25 @@ export async function storeCapturedImage(
   return commit(uid, kind, await persistImage(uid, kind, photo, 'camera'));
 }
 
+/**
+ * Uses expo-file-system's own picker rather than expo-document-picker. The document picker's cache copy
+ * sits outside the paths expo-file-system may read in Expo Go ("Missing 'READ' permission" on copy);
+ * the system picker's content:// URI is readable everywhere and avoids a second copy.
+ */
 export async function pickOfferLetter(uid: string): Promise<LocalFile | null> {
-  const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf', copyToCacheDirectory: true });
-  if (result.canceled) return null;
-  const asset = result.assets[0];
+  const picked = await File.pickFileAsync({ mimeTypes: 'application/pdf' });
+  if (picked.canceled) return null;
+  const source = picked.result;
 
   // Validate before copying: some providers ignore the type filter, and 10 MB is the backend limit.
   const check = pdfFileSchema.safeParse({
-    uri: asset.uri,
-    mimeType: asset.mimeType ?? (asset.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'unknown'),
-    name: asset.name,
-    sizeBytes: asset.size ?? 0,
+    uri: source.uri,
+    mimeType: source.type || (source.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'unknown'),
+    name: source.name,
+    sizeBytes: source.size,
     source: 'document',
   });
   if (!check.success) throw new PickError(check.error.issues[0]?.message ?? 'Invalid file');
 
-  return commit(uid, 'offerLetter', await persistPdf(uid, asset));
+  return commit(uid, 'offerLetter', await persistPdf(uid, source));
 }

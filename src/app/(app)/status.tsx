@@ -1,26 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Card, Icon, Text, useTheme } from 'react-native-paper';
 
 import { api } from '@/api';
 import type { OutboxItem } from '@/domain/types';
+import { secondsUntil, useNow } from '@/lib/useNow';
 import { MAX_ATTEMPTS } from '@/outbox/processor';
 import { kick } from '@/outbox/useOutboxTriggers';
 import { useDraft, useDraftStore } from '@/stores/draftStore';
 import { useOutboxStore } from '@/stores/outboxStore';
 import { useUid } from '@/stores/sessionStore';
-
-function useNow(active: boolean) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!active) return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [active]);
-  return now;
-}
 
 type Banner = { icon: string; title: string; body: string; tone: 'info' | 'error' | 'success' };
 
@@ -45,7 +35,7 @@ function outboxBanner(item: OutboxItem, now: number): Banner {
         };
       }
       if (item.attempts > 0) {
-        const secs = Math.max(0, Math.ceil((item.nextAttemptAt - now) / 1000));
+        const secs = secondsUntil(item.nextAttemptAt, now);
         return {
           icon: 'timer-sand',
           title: `Retrying in ${secs}s`,
@@ -72,7 +62,8 @@ export default function StatusScreen() {
   const item = useOutboxStore((s) => (draft.outboxItemId ? s.items[draft.outboxItemId] : undefined));
   const applicationId = draft.applicationId;
 
-  const now = useNow(item?.status === 'pending' && item.attempts > 0);
+  // Keep ticking through the whole retry cycle (pending → in_flight → pending) so the clock is never stale.
+  const now = useNow(item?.status === 'pending' || item?.status === 'in_flight');
 
   const status = useQuery({
     queryKey: ['application-status', applicationId],

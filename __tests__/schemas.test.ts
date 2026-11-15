@@ -13,7 +13,7 @@ const valid = {
   phone: '+44 20 7946 0958',
   dateOfBirth: '1990-12-10',
   nationality: 'British',
-  documentNumber: 'AB-123456',
+  documentNumber: '30123456',
 };
 
 const jpeg = (name: string): LocalFile => ({
@@ -45,6 +45,17 @@ describe('onboarding schemas', () => {
     const r = personalSchema.safeParse({ ...valid, email: 'ada@' });
     expect(r.success).toBe(false);
     expect(firstMessage(r)).toBe('Enter a valid email');
+  });
+
+  // protects=ID number is digits only, 6-12 long; fails_when=letters/dashes pass or length bounds shift; no_claim=checksum or country-specific formats
+  it('accepts only 6-12 digit ID numbers', () => {
+    for (const ok of ['301234', '30123456', '123456789012']) {
+      expect(personalSchema.safeParse({ ...valid, documentNumber: ok }).success).toBe(true);
+    }
+    for (const bad of ['AB123456', '30-123-456', '12345', '1234567890123']) {
+      const r = personalSchema.safeParse({ ...valid, documentNumber: bad });
+      expect(firstMessage(r)).toBe('Use 6-12 digits, no letters or symbols');
+    }
   });
 
   // protects=AC5 under-18 message; fails_when=someone who turns 18 tomorrow passes; no_claim=time zones (uses device local date)

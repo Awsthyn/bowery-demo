@@ -22,7 +22,7 @@ The project is built around the problems that decide whether this kind of app wo
 1. **Sign in** with Google, or tap **Continue as demo user** (Firebase Anonymous Auth).
 2. **Kill and resume.** Type a name on *Personal info*, wait a second, kill the app from recents, then reopen it. You return to the same step with the text intact. The same holds on later steps; captured photos and the PDF survive restarts.
 3. **Offline submit.** Complete the wizard. Open **⋮ → Dev settings**, turn on **Force offline** (or use airplane mode), then **Submit**. Status shows *Waiting for connection*. Go back online: the submission is sent and status becomes *In review*.
-4. **Flaky server.** Set **Failure rate = 100%**, start a new application (sign out as demo user, sign in again) and submit. Status counts down through 1, 2, 4 and 8 s retries. After 5 attempts it shows **Retry**. Set the failure rate to 0% and press Retry.
+4. **Flaky server.** In Dev settings, set **Failure rate = 100%** and tap **Reset demo**: it clears the mock server and your submission and returns you to Review with your data kept. Submit again. Status counts down through 1, 2, 4 and 8 s retries. After 5 attempts it shows **Retry**. Set the failure rate to 0% and press Retry.
 5. **Rejection loop.** Set **Application decision = Reject**. Status shows the reason and **Fix ID document**, which reopens the ID step with all other data intact. Resubmitting creates a new submission.
 
 ## Where to look
@@ -116,7 +116,7 @@ These are deliberate cuts. Each one is listed with the trade-off it carries and 
 | Local state | Zustand + `persist` on AsyncStorage |
 | Server state | TanStack Query |
 | Connectivity | `@react-native-community/netinfo` |
-| Media | expo-camera, expo-image-picker, expo-document-picker, expo-image-manipulator, expo-file-system |
+| Media | expo-camera, expo-image-picker, expo-image-manipulator, expo-file-system (also its file picker for the PDF) |
 | Tooling | Jest (jest-expo), React Native Testing Library, ESLint (eslint-config-expo), GitHub Actions, EAS Build |
 
 ## Run and build

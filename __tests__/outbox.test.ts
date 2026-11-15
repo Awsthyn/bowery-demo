@@ -25,7 +25,7 @@ const payload: SubmitPayload = {
     phone: '+44 20 7946 0958',
     dateOfBirth: '1990-12-10',
     nationality: 'British',
-    documentNumber: 'AB123456',
+    documentNumber: '30123456',
   },
   files: Object.fromEntries(DOC_KINDS.map((k) => [k, file(k)])) as Record<DocKind, LocalFile>,
 };
