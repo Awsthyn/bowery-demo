@@ -14,7 +14,7 @@ The project is built around the problems that decide whether this kind of app wo
 
 | Option | How | Notes |
 |---|---|---|
-| Android APK | [Install from EAS](https://expo.dev/accounts/awsthyn/projects/candidate-onboarding-demo/builds/5fe08eb7-f3a4-46b1-9208-425d4e146806) (QR or download) | Full experience, including Google Sign-In |
+| Android APK | [Install from EAS](https://expo.dev/accounts/awsthyn/projects/candidate-onboarding-demo/builds/2c2f42df-dc27-4645-98d7-95284d142405) (QR or download) | Full experience, including Google Sign-In |
 | Expo Go | `npm install && npx expo start`, scan the QR | Google Sign-In is hidden (native module); use **Continue as demo user** |
 
 ### Reviewer script (about 5 minutes)
